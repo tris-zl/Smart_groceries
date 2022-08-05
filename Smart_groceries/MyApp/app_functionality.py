@@ -1,8 +1,7 @@
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.app import App
 from kivy.lang.builder import Builder
-from kivy.properties import ObjectProperty
-from kivy.properties import BooleanProperty
+from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout

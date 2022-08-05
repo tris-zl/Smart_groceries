@@ -1,26 +1,8 @@
-import mysql.connector
-from aifc import Error
-
+from db_smart_groceries import create_connection
 import flask
 from flask import request, Flask
 
 app = Flask(__name__)
-
-
-def create_connection():
-    db = None
-    try:
-        db = mysql.connector.connect(
-            host="localhost",
-            user="Tris",
-            passwd="SdjolSLgiDY7bhbjvBjL",
-            database="smart_groceries"
-        )
-
-    except Error as e:
-        print(e)
-
-    return db
 
 
 @app.route('/')

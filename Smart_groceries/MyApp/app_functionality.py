@@ -88,7 +88,10 @@ class GroceryList(Screen):
     def btn(self):
         product_name = self.product_name.text
         quantity = self.quantity.text
-        dic = {"product_name": product_name, "quantity": quantity, "first_name": SmartApp.first_name, "last_name": SmartApp.last_name}
+        dic = {"product_name": product_name,
+               "quantity": quantity,
+               "first_name": SmartApp.first_name,
+               "last_name": SmartApp.last_name}
         requests.get("http://127.0.0.1:5000/add_to_shoppingcart", dic)
 
 

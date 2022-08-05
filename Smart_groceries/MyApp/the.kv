@@ -1,0 +1,337 @@
+
+WindowManager:
+    StartScreen:
+    SignUp:
+    SignIn:
+    JoinGroup:
+    GroceryList:
+    ShoppingCart:
+    Product:
+
+
+<StartScreen>:
+    name: "main"
+
+    GridLayout:
+        cols: 2
+
+        Button:
+            text: "Sign in"
+            on_release:
+                app.root.current = "sign_in"
+
+        Button:
+            text: "Sign up"
+            on_release:
+                app.root.current = "sign_up"
+
+
+<SignIn>:
+    name: "sign_in"
+
+    email: email
+    password: password
+
+    GridLayout:
+        cols: 1
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: "Email: "
+
+            TextInput:
+                id: email
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Password: "
+
+            TextInput:
+                id: password
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Button:
+                text: "Go back"
+                on_release:
+                    app.root.current = "main"
+
+            Button:
+                text: "Submit"
+                on_release:
+                    root.btn() if email.text and password.text and not len(password.text) > 50 else None
+                    app.root.current = "list" if root.user_exists else root.invalid_enter()
+
+
+<SignUp>:
+    name: "sign_up"
+
+    first_name: first_name
+    last_name: last_name
+    email: email
+    password: password
+
+    GridLayout:
+        cols: 1
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: "Name: "
+
+            TextInput:
+                id: first_name
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Last name: "
+
+            TextInput:
+                id: last_name
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Email: "
+
+            TextInput:
+                id: email
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Create Password: "
+
+            TextInput:
+                id: password
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Check Password: "
+
+            TextInput:
+                id: check_password
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Button:
+                text: "Go back"
+                on_release:
+                    app.root.current = "main"
+
+            Button:
+                text: "Submit"
+                on_release:
+                    root.btn() if first_name.text and last_name.text and email.text and password.text and password.text == check_password.text and not len(password.text) > 50 else None
+                    app.root.current = "list" if root.new_user else root.invalid_enter()
+
+
+<JoinGroup>:
+    name: "join_group"
+
+
+<GroceryList>:
+    name: "list"
+
+    product_name: product_name
+    quantity: quantity
+
+    GridLayout:
+        cols: 1
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: "Name of product: "
+
+            TextInput:
+                id: product_name
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+            Label:
+                text: "Quantity: "
+
+            TextInput:
+                id: quantity
+                multiline: False
+                background_color: (0.3, 0.4, 0.5, 1)
+
+        Button:
+            text: "Submit"
+            background_color: (0.2, 0.4, 0.4, 1)
+            on_release:
+                root.btn() if product_name.text and quantity.text else None
+                app.root.current = "shopping_cart" if product_name.text and quantity.text else "list"
+
+        GridLayout:
+            cols: 2
+
+            Button:
+                text: "Log out"
+                on_release:
+                    app.root.current = "main"
+
+            Button:
+                text: "Shopping cart"
+                on_release:
+                    app.root.current = "shopping_cart"
+
+
+<ShoppingCart>:
+    name: "shopping_cart"
+
+    shoppingcart: shoppingcart
+
+    GridLayout:
+        cols: 1
+
+        Label:
+            text: "Shoppingcart: "
+
+        GridLayout:
+            cols: 3
+
+            Label:
+                text: "Product: "
+
+            Label:
+                text: "Quantity: "
+
+            Label:
+                text: "Added by: "
+
+        ScrollView:
+            id: shoppingcart
+
+        Button:
+            text: "Home site"
+            on_release:
+                app.root.current = "list"
+
+
+<Product>:
+    name: "product"
+
+    product: product
+
+    GridLayout:
+        cols: 1
+
+        Label:
+            text: "Information of product: "
+            background_color: 0.3, 0.4, 0.5, 1
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+					size: self.size
+					pos: self.pos
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: "Product name:"
+
+            Label:
+                id: product
+                text: ""
+
+            Label:
+                text: "EAN-Code: "
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: ""
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: "Brand: "
+
+            Label:
+                text: ""
+
+            Label:
+                text: "Price: "
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: ""
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: "Weight: "
+
+            Label:
+                text: ""
+
+            Label:
+                text: "Packaging: "
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: ""
+                background_color: 0.1, 0.1, 0.1, 1
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Label:
+                text: "Nutrition values: "
+
+            Label:
+                text: ""
+
+        GridLayout:
+            cols: 2
+
+            Button:
+                text: "Add to cart"
+                on_release:
+                    app.root.current = "shopping_cart"
+
+            Button:
+                text: "Go Back"
+                on_release:
+                    app.root.current = "list"

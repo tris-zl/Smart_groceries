@@ -60,7 +60,7 @@ class SignUp(Screen):
 
         dic = {"name": first_name, "last_name": last_name, "email": email, "password": password}
         data = requests.get("http://127.0.0.1:5000/add_users", dic)
-        if "successful added" in data.text:
+        if "successfully added" in data.text:
             SmartApp.first_name = first_name
             SmartApp.last_name = last_name
             self.new_user = True

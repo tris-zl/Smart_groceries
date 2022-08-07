@@ -77,13 +77,16 @@ def get_sign_up_user():
     email = request.args.get("email")
     password = request.args.get("password")
     check_mail = check_email(db, email)
-    return add_user(db, first_name, last_name, email, password) if 0 in check_mail else "Invalid enter"
+    return add_user(db, first_name, last_name, email, password) if check_mail == 0 else "Invalid enter. "
 
 
 def add_user(db, first_name, last_name, email, password):
     my_cursor = db.cursor()
-    sql = "INSERT INTO users(name, last_name, email, password) VALUES (%s,%s,%s,%s);"
-    my_cursor.execute(sql, (first_name, last_name, email, password))
+    sql_1 = "INSERT INTO teams(team_name, team_password) VALUES (%s,%s)"
+    sql_2 = "INSERT INTO users(user_id, name, last_name, email, password) VALUES (%s,%s,%s,%s,%s);"
+    my_cursor.execute(sql_1, ())
+    last_id = my_cursor.lastrowid
+    my_cursor.execute(sql_2, (last_id, first_name, last_name, email, password))
     db.commit()
     db.close()
     return "successfully added"
@@ -94,7 +97,7 @@ def check_email(db, email):
     sql = "SELECT EXISTS(SELECT * FROM users WHERE name=(%s));"
     my_cursor.execute(sql, (email,))
     checked_email = my_cursor.fetchone()
-    return checked_email
+    return checked_email[0]
 
 
 # my_cursor.execute("CREATE DATABASE smart_groceries")

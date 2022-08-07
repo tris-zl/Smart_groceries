@@ -1,22 +1,4 @@
-import mysql.connector
-from aifc import Error
-
-
-def create_connection():
-    db = None
-    try:
-        db = mysql.connector.connect(
-            host="localhost",
-            user="Tris",
-            passwd="SdjolSLgiDY7bhbjvBjL",
-            database="smart_groceries"
-        )
-
-    except Error as e:
-        print(e)
-
-    return db
-
+from db_smart_groceries import create_connection
 
 db = create_connection()
 my_cursor = db.cursor()

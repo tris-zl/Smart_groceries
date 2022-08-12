@@ -33,6 +33,7 @@ def return_all_products():
     return flask.jsonify(all_products)
 
 
+# add product to shoppingcart
 @app.route('/add_to_shoppingcart')
 def get_added():
     db = create_connection()
@@ -52,6 +53,7 @@ def add_product(db, product, quantity, first_name, last_name):
     return "successfully added"
 
 
+# check if users signin data already exists
 @app.route('/check_users')
 def get_sign_in_user():
     db = create_connection()
@@ -63,12 +65,13 @@ def get_sign_in_user():
 def check_user(db, email, password):
     my_cursor = db.cursor()
     sql = "SELECT * FROM users WHERE email=(%s) AND password=(%s);"
-    my_cursor.execute(sql, (email, password,))
+    my_cursor.execute(sql, (email, password))
     checked_user = my_cursor.fetchone()
-    db.close()
-    return flask.jsonify(checked_user[0], checked_user[1]) if checked_user[0] and checked_user[1] else ""
+    # return forename and last name
+    return flask.jsonify(checked_user[0], checked_user[1])
 
 
+# add signup user to database
 @app.route('/add_users')
 def get_sign_up_user():
     db = create_connection()
@@ -76,17 +79,15 @@ def get_sign_up_user():
     last_name = request.args.get("last_name")
     email = request.args.get("email")
     password = request.args.get("password")
+    # check if typed in email exists already
     check_mail = check_email(db, email)
     return add_user(db, first_name, last_name, email, password) if check_mail == 0 else "Invalid enter. "
 
 
 def add_user(db, first_name, last_name, email, password):
     my_cursor = db.cursor()
-    sql_1 = "INSERT INTO teams(team_name, team_password) VALUES (%s,%s)"
-    sql_2 = "INSERT INTO users(user_id, name, last_name, email, password) VALUES (%s,%s,%s,%s,%s);"
-    my_cursor.execute(sql_1, ())
-    last_id = my_cursor.lastrowid
-    my_cursor.execute(sql_2, (last_id, first_name, last_name, email, password))
+    sql = "INSERT INTO users(name, last_name, email, password) VALUES (%s,%s,%s,%s);"
+    my_cursor.execute(sql, (first_name, last_name, email, password))
     db.commit()
     db.close()
     return "successfully added"
@@ -98,15 +99,6 @@ def check_email(db, email):
     my_cursor.execute(sql, (email,))
     checked_email = my_cursor.fetchone()
     return checked_email[0]
-
-
-# my_cursor.execute("CREATE DATABASE smart_groceries")
-# my_cursor.execute("CREATE TABLE shopping_list (product_name VARCHAR(100), person_name VARCHAR(50), "
-#                   "quantity smallint UNSIGNED)")
-# db = create_connection()
-# my_cursor = db.cursor()
-# my_cursor.execute("ALTER TABLE users ADD name VARCHAR(50), ADD last_name VARCHAR(50), "
-#                  "ADD email VARCHAR(50), ADD password VARCHAR(50)")
 
 
 if __name__ == '__main__':

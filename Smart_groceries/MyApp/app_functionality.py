@@ -5,6 +5,8 @@ from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 import requests
 
 
@@ -85,7 +87,15 @@ class SignUp(Screen):
         self.ids.check_password.text = ""
 
 
-class JoinGroup(Screen):
+class JoinCreateGroup(Screen):
+    pass
+
+
+class PJoinGroup(FloatLayout):
+    pass
+
+
+class PCreateGroup(FloatLayout):
     pass
 
 
@@ -110,7 +120,7 @@ class ShoppingCart(Screen, Widget):
     shoppingcart = ObjectProperty(None)
 
     def on_pre_enter(self, *args):
-        self.shoppingcart.remove_widget(self.shoppingcart)  # remove everything to update it on pre enter
+        self.shoppingcart.clear_widgets()  # remove everything to update it on pre enter
         data = requests.get("http://127.0.0.1:5000/shoppingcart")   # http request stored into variable
         products = data.json()
 
@@ -146,8 +156,45 @@ class SmartApp(App):
     first_name = ""
     last_name = ""
 
+    group_name = ""
+    group_password = ""
+    group_exists = False
+
     def build(self):
         return kv
+
+    @staticmethod
+    def show_popup_join():
+        show = PJoinGroup()  # make new instance of popup
+
+        # define some attributes
+        popup_window = Popup(title="Join group", content=show, size_hint=(None, None), size=(400, 400))
+
+        popup_window.open()
+
+    def check_group_member(self):
+        dic = {"group_name": self.group_name, "group_password": self.group_password}  # into dic for request
+        data = requests.get("http://127.0.0.1:5000/check_group_member", dic)    # http request
+
+        if data.text:   # if group exists
+            self.group_exists = True
+
+    @staticmethod
+    def invalid_enter(self):
+        print("Invalid enter. ")
+
+    @staticmethod
+    def show_popup_create():
+        show = PCreateGroup()  # make new instance of popup
+
+        # define some attributes
+        popup_window = Popup(title="Join group", content=show, size_hint=(None, None), size=(400, 400))
+
+        popup_window.open()
+
+    def new_group(self):
+        dic = {"group_name": self.group_name, "group_password": self.group_password}  # into dic for request
+        requests.get("http://127.0.0.1:5000/new_group", dic)  # http request
 
 
 if __name__ == '__main__':

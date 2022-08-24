@@ -3,7 +3,7 @@ WindowManager:
     StartScreen:
     SignUp:
     SignIn:
-    JoinGroup:
+    JoinCreateGroup:
     GroceryList:
     ShoppingCart:
     Product:
@@ -132,11 +132,96 @@ WindowManager:
                 text: "Submit"
                 on_release:
                     root.btn() if first_name.text and last_name.text and email.text and password.text and password.text == check_password.text and not len(password.text) > 50 else None
-                    app.root.current = "list" if root.new_user else root.invalid_enter()
+                    app.root.current = "join_create_group" if root.new_user else root.invalid_enter()
 
 
-<JoinGroup>:
-    name: "join_group"
+<JoinCreateGroup>:
+    name: "join_create_group"
+
+    GridLayout:
+        cols: 2
+
+        Button:
+            text: "Join group"
+            on_release:
+                app.show_popup_join()
+
+        Button:
+            text: "Create group"
+            on_release:
+                app.show_popup_create()
+
+
+# popup with float layout
+<PJoinGroup>:
+
+    Label:
+        text: "Group name"
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0, "top":0.9}
+
+    TextInput:
+        id: group_name
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0.5, "top":0.9}
+        password: True  # hide password input
+
+    Label:
+        text:"Group password"
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0, "top":0.66}
+
+    TextInput:
+        id: group_password
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0.5, "top":0.66}
+        password: True  # hide password input
+
+    Button:
+        text: "Submit"
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":0.3}
+        on_release:
+            app.group_name = root.ids.group_name.text
+            app.group_password = root.ids.group_password.text
+            app.check_group_member()
+            app.root.current = "list" if app.group_exists else app.invalid_enter
+
+
+# popup with float layout
+<PCreateGroup>:
+
+    Label:
+        text: "Group name"
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0, "top":0.9}
+
+    TextInput:
+        id: group_name
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0.5, "top":0.9}
+        password: True  # hide password input
+
+    Label:
+        text:"Group password"
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0, "top":0.66}
+
+    TextInput:
+        id: group_password
+        size_hint: 0.5, 0.2
+        pos_hint: {"x":0.5, "top":0.66}
+        password: True  # hide password input
+
+    Button:
+        text: "Create new group"
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":0.3}
+        on_release:
+            app.group_name = root.ids.group_name.text
+            app.group_password = root.ids.group_password.text
+            app.new_group() if root.ids.group_name.text and root.ids.group_password.text else None
+            app.root.current = "list" if root.ids.group_name.text and root.ids.group_password.text else None
 
 
 <GroceryList>:

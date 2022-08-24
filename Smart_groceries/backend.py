@@ -10,6 +10,7 @@ def welcome_screen():
     return 'Welcome to Smart Groceries'
 
 
+# later for external api's
 @app.route('/shopping_site')
 def shopping_site():
     db = create_connection()
@@ -23,11 +24,44 @@ def products(db):
     return flask.jsonify(rows)
 
 
+@app.route('/new_group')
+def get_group_attributes():
+    db = create_connection()
+    group_name = request.args.get("group_name")
+    group_password = request.args.get("group_password")
+    return create_group(db, group_name, group_password)
+
+
+def create_group(db, group_name, group_password):
+    my_cursor = db.cursor()
+    sql = "INSERT INTO teams(team_name, team_password) VALUES (%s,%s);"
+    my_cursor.execute(sql, (group_name, group_password))
+    db.commit()
+    db.close()
+    return "successfully added"
+
+
+@app.route('/check_group_member')
+def get_group_member():
+    db = create_connection()
+    group_name = request.args.get("group_name")
+    group_password = request.args.get("group_password")
+    return check_possible_member(db, group_name, group_password)
+
+
+def check_possible_member(db, group_name, group_password):
+    my_cursor = db.cursor()
+    sql = "SELECT * FROM teams WHERE email=(%s) AND password=(%s);"
+    my_cursor.execute(sql, (group_name, group_password))
+    checked_member = my_cursor.fetchone()
+    # return forename and last name
+    return flask.jsonify(checked_member[0], checked_member[1])  # return group name and password
+
+
 @app.route('/shoppingcart')
 def return_all_products():
     db = create_connection()
     my_cursor = db.cursor()
-
     my_cursor.execute("SELECT * FROM shoppingcart")
     all_products = my_cursor.fetchall()
     return flask.jsonify(all_products)

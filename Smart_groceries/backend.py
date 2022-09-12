@@ -29,6 +29,7 @@ def get_group_attributes():
     db = create_connection()
     group_name = request.args.get("group_name")
     group_password = request.args.get("group_password")
+    checked_team_name = check_team_name(db, group_name)
     return create_group(db, group_name, group_password)
 
 
@@ -41,6 +42,14 @@ def create_group(db, group_name, group_password):
     return "successfully added"
 
 
+def check_team_name(db, group_name):
+    my_cursor = db.cursor()
+    sql = "SELECT EXISTS(SELECT * FROM teams WHERE team_name=(%s));"
+    my_cursor.execute(sql, (group_name,))
+    checked_group_name = my_cursor.fetchone()
+    return checked_group_name[0] if checked_group_name == 0 else "Invalid enter. "
+
+
 @app.route('/check_group_member')
 def get_group_member():
     db = create_connection()
@@ -51,7 +60,7 @@ def get_group_member():
 
 def check_possible_member(db, group_name, group_password):
     my_cursor = db.cursor()
-    sql = "SELECT * FROM teams WHERE email=(%s) AND password=(%s);"
+    sql = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
     my_cursor.execute(sql, (group_name, group_password))
     checked_member = my_cursor.fetchone()
     # return forename and last name

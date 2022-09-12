@@ -180,7 +180,7 @@ class SmartApp(App):
             self.group_exists = True
 
     @staticmethod
-    def invalid_enter(self):
+    def invalid_enter():
         print("Invalid enter. ")
 
     @staticmethod

@@ -27,44 +27,63 @@ def products(db):
 @app.route('/new_group')
 def get_group_attributes():
     db = create_connection()
+    user_id = request.args.get("user_id")
     group_name = request.args.get("group_name")
     group_password = request.args.get("group_password")
-    checked_team_name = check_team_name(db, group_name)
-    return create_group(db, group_name, group_password)
+    return create_group(db, user_id, group_name, group_password)
 
 
-def create_group(db, group_name, group_password):
+def create_group(db, user_id, group_name, group_password):
     my_cursor = db.cursor()
     sql = "INSERT INTO teams(team_name, team_password) VALUES (%s,%s);"
     my_cursor.execute(sql, (group_name, group_password))
+    db.commit()
+
+    sql_2 = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
+    my_cursor.execute(sql_2, (group_name, group_password))
+    checked_member = my_cursor.fetchone()
+
+    sql_3 = "INSERT INTO teams_users(group_id, user_id) VALUES (%s,%s);"
+    my_cursor.execute(sql_3, (checked_member[0], user_id))  # insert group_id and user_id into groups_users
     db.commit()
     db.close()
     return "successfully added"
 
 
-def check_team_name(db, group_name):
-    my_cursor = db.cursor()
-    sql = "SELECT EXISTS(SELECT * FROM teams WHERE team_name=(%s));"
-    my_cursor.execute(sql, (group_name,))
-    checked_group_name = my_cursor.fetchone()
-    return checked_group_name[0] if checked_group_name == 0 else "Invalid enter. "
-
-
-@app.route('/check_group_member')
+@app.route('/join_team')
 def get_group_member():
     db = create_connection()
+    user_id = request.args.get("user_id")
     group_name = request.args.get("group_name")
     group_password = request.args.get("group_password")
-    return check_possible_member(db, group_name, group_password)
+    return add_to_team(db, user_id, group_name, group_password)
 
 
-def check_possible_member(db, group_name, group_password):
+def add_to_team(db, user_id, group_name, group_password):
     my_cursor = db.cursor()
     sql = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
     my_cursor.execute(sql, (group_name, group_password))
     checked_member = my_cursor.fetchone()
-    # return forename and last name
-    return flask.jsonify(checked_member[0], checked_member[1])  # return group name and password
+
+    sql_2 = "INSERT INTO teams_users(group_id, user_id) VALUES (%s,%s);"
+    my_cursor.execute(sql_2, (checked_member[0], user_id))  # insert group_id and user_id into groups_users
+    return "successfully added"
+
+
+@app.route('/give_user_ids')
+def get_data():
+    db = create_connection()
+    email = request.args.get("email")
+    return get_user_id(db, email)
+
+
+def get_user_id(db, email):
+    my_cursor = db.cursor()
+    sql = "SELECT * FROM users WHERE email=(%s);"
+    my_cursor.execute(sql, (email,))
+    checked_user = my_cursor.fetchone()
+    # return user_id
+    return flask.jsonify(checked_user[0])
 
 
 @app.route('/shoppingcart')
@@ -101,17 +120,16 @@ def add_product(db, product, quantity, first_name, last_name):
 def get_sign_in_user():
     db = create_connection()
     email = request.args.get("email")
-    password = request.args.get("password")
-    return check_user(db, email, password)
+    return check_user(db, email)
 
 
-def check_user(db, email, password):
+def check_user(db, email):
     my_cursor = db.cursor()
-    sql = "SELECT * FROM users WHERE email=(%s) AND password=(%s);"
-    my_cursor.execute(sql, (email, password))
+    sql = "SELECT * FROM users WHERE email=(%s);"
+    my_cursor.execute(sql, (email,))
     checked_user = my_cursor.fetchone()
     # return forename and last name
-    return flask.jsonify(checked_user[0], checked_user[1])
+    return flask.jsonify(checked_user[1], checked_user[2])
 
 
 # add signup user to database
@@ -122,9 +140,7 @@ def get_sign_up_user():
     last_name = request.args.get("last_name")
     email = request.args.get("email")
     password = request.args.get("password")
-    # check if typed in email exists already
-    check_mail = check_email(db, email)
-    return add_user(db, first_name, last_name, email, password) if check_mail == 0 else "Invalid enter. "
+    return add_user(db, first_name, last_name, email, password)
 
 
 def add_user(db, first_name, last_name, email, password):
@@ -134,14 +150,6 @@ def add_user(db, first_name, last_name, email, password):
     db.commit()
     db.close()
     return "successfully added"
-
-
-def check_email(db, email):
-    my_cursor = db.cursor()
-    sql = "SELECT EXISTS(SELECT * FROM users WHERE name=(%s));"
-    my_cursor.execute(sql, (email,))
-    checked_email = my_cursor.fetchone()
-    return checked_email[0]
 
 
 if __name__ == '__main__':

@@ -36,6 +36,7 @@ class SignIn(Screen):
             names = data.json()
             SmartApp.first_name = names[0]
             SmartApp.last_name = names[1]
+            SmartApp.email = email
             self.user_exists = True  # information for kivy
 
     def invalid_enter(self):
@@ -69,13 +70,14 @@ class SignUp(Screen):
         # into dictionary for request
         dic = {"name": first_name, "last_name": last_name, "email": email, "password": password}
         data = requests.get("http://127.0.0.1:5000/add_users", dic)  # http request stored into variable
-        if "successfully added" in data.text:
+        if data.text == "":
+            self.new_user = False  # information for kivy
+        else:
             # some kind of global variables to access from other screens as well
             SmartApp.first_name = first_name
             SmartApp.last_name = last_name
+            SmartApp.email = email
             self.new_user = True  # information for kivy
-        else:
-            self.new_user = False  # information for kivy
 
     def invalid_enter(self):
         print("Invalid enter. ")
@@ -155,6 +157,7 @@ kv = Builder.load_file("the.kv")
 class SmartApp(App):
     first_name = ""
     last_name = ""
+    email = ""
 
     group_name = ""
     group_password = ""
@@ -173,10 +176,15 @@ class SmartApp(App):
         popup_window.open()
 
     def check_group_member(self):
-        dic = {"group_name": self.group_name, "group_password": self.group_password}  # into dic for request
-        data = requests.get("http://127.0.0.1:5000/check_group_member", dic)    # http request
+        dic = {"email": self.email}  # into dic for request
+        data = requests.get("http://127.0.0.1:5000/give_user_ids", dic)    # http request
+        user_id = data.json()
 
-        if data.text:   # if group exists
+        # into dic for request
+        dic_2 = {"user_id": user_id, "group_name": self.group_name, "group_password": self.group_password}
+        data_2 = requests.get("http://127.0.0.1:5000/join_team", dic_2)    # http request
+
+        if data_2.text:   # if group exists
             self.group_exists = True
 
     @staticmethod
@@ -193,8 +201,13 @@ class SmartApp(App):
         popup_window.open()
 
     def new_group(self):
-        dic = {"group_name": self.group_name, "group_password": self.group_password}  # into dic for request
-        requests.get("http://127.0.0.1:5000/new_group", dic)  # http request
+        dic = {"email": self.email}  # into dic for request
+        data = requests.get("http://127.0.0.1:5000/give_user_ids", dic)  # http request
+        user_id = data.json()
+
+        # into dic for request
+        dic_2 = {"user_id": user_id, "group_name": self.group_name, "group_password": self.group_password}
+        requests.get("http://127.0.0.1:5000/new_group", dic_2)  # http request
 
 
 if __name__ == '__main__':

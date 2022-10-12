@@ -34,44 +34,61 @@ def get_group_attributes():
 
 
 def create_group(db, user_id, group_name, group_password):
+    # create new group
     my_cursor = db.cursor()
     sql = "INSERT INTO teams(team_name, team_password) VALUES (%s,%s);"
     my_cursor.execute(sql, (group_name, group_password))
     db.commit()
 
+    # get new team id
     sql_2 = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
     my_cursor.execute(sql_2, (group_name, group_password))
-    checked_member = my_cursor.fetchone()
+    row = my_cursor.fetchone()
 
+    # make entry in teams_users for many-to-many connection
     sql_3 = "INSERT INTO teams_users(group_id, user_id) VALUES (%s,%s);"
-    my_cursor.execute(sql_3, (checked_member[0], user_id))  # insert group_id and user_id into groups_users
+    my_cursor.execute(sql_3, (row[0], user_id))  # insert group_id and user_id into groups_users
     db.commit()
     db.close()
-    return "successfully added"
+    return flask.jsonify(row[0])    # return team_id
 
 
 @app.route('/join_team')
 def get_group_member():
     db = create_connection()
     user_id = request.args.get("user_id")
-    group_name = request.args.get("group_name")
-    group_password = request.args.get("group_password")
-    return add_to_team(db, user_id, group_name, group_password)
+    team_id = request.args.get("team_id")
+    return add_to_team(db, user_id, team_id)
 
 
-def add_to_team(db, user_id, group_name, group_password):
+def add_to_team(db, user_id, team_id):
     my_cursor = db.cursor()
-    sql = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
-    my_cursor.execute(sql, (group_name, group_password))
-    checked_member = my_cursor.fetchone()
-
-    sql_2 = "INSERT INTO teams_users(group_id, user_id) VALUES (%s,%s);"
-    my_cursor.execute(sql_2, (checked_member[0], user_id))  # insert group_id and user_id into groups_users
+    sql = "INSERT INTO teams_users(group_id, user_id) VALUES (%s,%s);"
+    my_cursor.execute(sql, (team_id, user_id))  # insert group_id and user_id into groups_users
+    db.commit()
+    db.close()
     return "successfully added"
 
 
-@app.route('/give_user_ids')
+@app.route('/give_team_ids')
 def get_data():
+    db = create_connection()
+    group_name = request.args.get("group_name")
+    group_password = request.args.get("group_password")
+    return get_team_id(db, group_name, group_password)
+
+
+def get_team_id(db, group_name, group_password):
+    my_cursor = db.cursor()
+    sql = "SELECT * FROM teams WHERE team_name=(%s) AND team_password=(%s);"
+    my_cursor.execute(sql, (group_name, group_password))
+    row = my_cursor.fetchone()
+    # return team_id
+    return flask.jsonify(row[0])
+
+
+@app.route('/give_user_ids')
+def get_mail():
     db = create_connection()
     email = request.args.get("email")
     return get_user_id(db, email)
@@ -81,9 +98,9 @@ def get_user_id(db, email):
     my_cursor = db.cursor()
     sql = "SELECT * FROM users WHERE email=(%s);"
     my_cursor.execute(sql, (email,))
-    checked_user = my_cursor.fetchone()
+    row = my_cursor.fetchone()
     # return user_id
-    return flask.jsonify(checked_user[0])
+    return flask.jsonify(row[0])
 
 
 @app.route('/shoppingcart')

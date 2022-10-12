@@ -183,8 +183,8 @@ WindowManager:
         on_release:
             app.group_name = root.ids.group_name.text
             app.group_password = root.ids.group_password.text
-            app.check_group_member()
-            app.root.current = "list" if app.group_exists else app.invalid_enter
+            app.join_team()
+            app.root.current = "list" if app.group_exists else app.invalid_enter()
 
 
 # popup with float layout
@@ -219,7 +219,7 @@ WindowManager:
             app.group_name = root.ids.group_name.text
             app.group_password = root.ids.group_password.text
             app.new_group() if root.ids.group_name.text and root.ids.group_password.text else None
-            app.root.current = "list" if root.ids.group_name.text and root.ids.group_password.text else None
+            app.root.current = "list" if app.group_exists else app.invalid_enter()
 
 
 <GroceryList>:

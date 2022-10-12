@@ -130,6 +130,8 @@ class ShoppingCart(Screen, Widget):
         layout = GridLayout(cols=3, size_hint=(1, None))
         layout.bind(minimum_height=layout.setter('height'))
 
+        # filter that only groups that added products can see them
+        team_id = SmartApp.group_id
         # add info from database into kivy to users interface
         for product in products:
             all_names = []
@@ -159,6 +161,7 @@ class SmartApp(App):
     last_name = ""
     email = ""
 
+    group_id = None
     group_name = ""
     group_password = ""
     group_exists = False
@@ -175,17 +178,19 @@ class SmartApp(App):
 
         popup_window.open()
 
-    def check_group_member(self):
+    def join_team(self):
         dic = {"email": self.email}  # into dic for request
-        data = requests.get("http://127.0.0.1:5000/give_user_ids", dic)    # http request
-        user_id = data.json()
+        user_id = requests.get("http://127.0.0.1:5000/give_user_ids", dic)    # http request
 
         # into dic for request
-        dic_2 = {"user_id": user_id, "group_name": self.group_name, "group_password": self.group_password}
-        data_2 = requests.get("http://127.0.0.1:5000/join_team", dic_2)    # http request
+        dic_2 = {"group_name": self.group_name, "group_password": self.group_password}
+        team_id = requests.get("http://127.0.0.1:5000/give_team_ids", dic_2)    # http request
+        self.group_id = team_id
 
-        if data_2.text:   # if group exists
+        if team_id.text:   # if team exists
             self.group_exists = True
+            dic_3 = {"team_id": team_id, "user_id": user_id}
+            requests.get("http://127.0.0.1:5000/join_team", dic_3)    # http request
 
     @staticmethod
     def invalid_enter():
@@ -207,7 +212,11 @@ class SmartApp(App):
 
         # into dic for request
         dic_2 = {"user_id": user_id, "group_name": self.group_name, "group_password": self.group_password}
-        requests.get("http://127.0.0.1:5000/new_group", dic_2)  # http request
+        team_id = requests.get("http://127.0.0.1:5000/new_group", dic_2)  # http request
+
+        if team_id.text:
+            self.group_id = team_id
+            self.group_exists = True
 
 
 if __name__ == '__main__':
